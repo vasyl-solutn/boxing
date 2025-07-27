@@ -23,12 +23,20 @@ const config = {
 let game;
 let player;
 let npc;
-let playerHealth = 100;
+let playerHealth = 1000;
 let playerPower = 50;
 let playerProtection = 30;
-let npcHealth = 100;
+let playerStrong = 50; // Max power
+let playerBlockValue = 100; // Max protection
+let playerTiredness = 0; // Max 100, recovers over time
+
+let npcHealth = 1000;
 let npcPower = 50;
 let npcProtection = 30;
+let npcStrong = 50; // Max power
+let npcBlockValue = 100; // Max protection
+let npcTiredness = 0; // Max 100, recovers over time
+
 let isPlayerBlocking = false;
 let isNpcBlocking = false;
 let gameState = 'fighting'; // 'fighting', 'gameOver'
@@ -60,8 +68,14 @@ function create() {
 function update() {
     updateUI();
 
-    // Check for game over
-    if (playerHealth <= 0 || npcHealth <= 0) {
+    // Recover tiredness over time
+    if (gameState === 'fighting') {
+        playerTiredness = Math.max(0, playerTiredness - 0.1);
+        npcTiredness = Math.max(0, npcTiredness - 0.1);
+    }
+
+    // Check for game over only if not already game over
+    if (gameState === 'fighting' && (playerHealth <= 0 || npcHealth <= 0)) {
         gameState = 'gameOver';
         endGame();
     }
@@ -137,21 +151,25 @@ function addLogEntry(message, type) {
 }
 
 function playerPunch() {
+    // Increase tiredness when punching
+    playerTiredness = Math.min(100, playerTiredness + 10);
+
+    // Calculate effective power based on tiredness
+    const effectivePower = playerStrong * (1 - playerTiredness / 100);
+
     if (isNpcBlocking) {
         // NPC is blocking, reduced damage
-        const damage = Math.max(5, playerPower - npcProtection);
+        const damage = Math.max(5, effectivePower - npcBlockValue);
         npcHealth = Math.max(0, npcHealth - damage);
         showDamageText(npc.x, npc.y, damage, 'blocked');
-        addLogEntry(`Player punches NPC (blocked) - ${damage} damage`, 'player');
+        addLogEntry(`Player punches NPC (blocked) - ${Math.round(damage)} damage`, 'player');
     } else {
         // Normal punch
-        const damage = playerPower;
+        const damage = effectivePower;
         npcHealth = Math.max(0, npcHealth - damage);
         showDamageText(npc.x, npc.y, damage, 'hit');
-        addLogEntry(`Player punches NPC - ${damage} damage`, 'player');
+        addLogEntry(`Player punches NPC - ${Math.round(damage)} damage`, 'player');
     }
-
-
 }
 
 function playerBlock() {
@@ -172,21 +190,25 @@ function npcAction() {
 
     if (action < 0.7) {
         // NPC punches
+        // Increase tiredness when punching
+        npcTiredness = Math.min(100, npcTiredness + 10);
+
+        // Calculate effective power based on tiredness
+        const effectivePower = npcStrong * (1 - npcTiredness / 100);
+
         if (isPlayerBlocking) {
-            const damage = Math.max(5, npcPower - playerProtection);
+            const damage = Math.max(5, effectivePower - playerBlockValue);
             playerHealth = Math.max(0, playerHealth - damage);
             showDamageText(player.x, player.y, damage, 'blocked');
-            addLogEntry(`NPC punches Player (blocked) - ${damage} damage`, 'npc');
+            addLogEntry(`NPC punches Player (blocked) - ${Math.round(damage)} damage`, 'npc');
         } else {
-            const damage = npcPower;
+            const damage = effectivePower;
             playerHealth = Math.max(0, playerHealth - damage);
             showDamageText(player.x, player.y, damage, 'hit');
-            addLogEntry(`NPC punches Player - ${damage} damage`, 'npc');
+            addLogEntry(`NPC punches Player - ${Math.round(damage)} damage`, 'npc');
         }
-
-
     } else {
-                        // NPC blocks
+        // NPC blocks
         isNpcBlocking = true;
         addLogEntry('NPC blocks', 'npc');
 
@@ -219,10 +241,16 @@ function updateUI() {
     document.getElementById('player-health').textContent = Math.max(0, playerHealth);
     document.getElementById('player-power').textContent = playerPower;
     document.getElementById('player-protection').textContent = playerProtection;
+    document.getElementById('player-strong').textContent = playerStrong;
+    document.getElementById('player-block').textContent = playerBlockValue;
+    document.getElementById('player-tiredness').textContent = Math.round(playerTiredness);
 
     document.getElementById('npc-health').textContent = Math.max(0, npcHealth);
     document.getElementById('npc-power').textContent = npcPower;
     document.getElementById('npc-protection').textContent = npcProtection;
+    document.getElementById('npc-strong').textContent = npcStrong;
+    document.getElementById('npc-block').textContent = npcBlockValue;
+    document.getElementById('npc-tiredness').textContent = Math.round(npcTiredness);
 }
 
 function endGame() {
@@ -243,8 +271,12 @@ function endGame() {
 
 function resetGame() {
     // Reset health
-    playerHealth = 100;
-    npcHealth = 100;
+    playerHealth = 1000;
+    npcHealth = 1000;
+
+    // Reset new parameters
+    playerTiredness = 0;
+    npcTiredness = 0;
 
     // Reset game state
     gameState = 'fighting';
