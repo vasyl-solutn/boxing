@@ -37,23 +37,15 @@ let gameState = 'fighting'; // 'fighting', 'gameOver'
 game = new Phaser.Game(config);
 
 function preload() {
-    // Create simple colored rectangles for characters
-    this.add.graphics().fillStyle(0x3498db).fillRect(0, 0, 50, 100);
-    this.add.graphics().fillStyle(0xe74c3c).fillRect(0, 0, 50, 100);
+    // No graphics needed for this game
 }
 
 function create() {
-    // Create player (blue rectangle)
-    player = this.add.rectangle(200, 300, 50, 100, 0x3498db);
-    this.physics.add.existing(player);
+    // Create simple player object for positioning
+    player = { x: 200, y: 300 };
 
-    // Create NPC (red rectangle)
-    npc = this.add.rectangle(600, 300, 50, 100, 0xe74c3c);
-    this.physics.add.existing(npc);
-
-    // Add text labels
-    this.add.text(200, 420, 'PLAYER', { fontSize: '16px', fill: '#3498db' }).setOrigin(0.5);
-    this.add.text(600, 420, 'NPC', { fontSize: '16px', fill: '#e74c3c' }).setOrigin(0.5);
+    // Create simple NPC object for positioning
+    npc = { x: 600, y: 300 };
 
     // Set up button event listeners
     setupButtons();
