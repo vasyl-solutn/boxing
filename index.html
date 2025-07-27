@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Boxing Game</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/phaser@3.60.0/dist/phaser.min.js"></script>
+</head>
+<body>
+    <div id="game-container">
+        <div id="ui-overlay">
+            <div id="player-stats">
+                <h3>Player</h3>
+                <div>Health: <span id="player-health">100</span></div>
+                <div>Power: <span id="player-power">50</span></div>
+                <div>Protection: <span id="player-protection">30</span></div>
+            </div>
+            <div id="npc-stats">
+                <h3>NPC</h3>
+                <div>Health: <span id="npc-health">100</span></div>
+                <div>Power: <span id="npc-power">50</span></div>
+                <div>Protection: <span id="npc-protection">30</span></div>
+            </div>
+        </div>
+        <div id="fight-log">
+            <h3>Fight Log</h3>
+            <div id="log-content"></div>
+        </div>
+        <div id="controls">
+            <button id="punch-btn">Punch</button>
+            <button id="block-btn">Block</button>
+            <button id="reset-btn">Reset Fight</button>
+        </div>
+    </div>
+    <script src="game.js"></script>
+</body>
+</html>
